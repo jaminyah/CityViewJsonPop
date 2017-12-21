@@ -49,10 +49,10 @@ extension ViewController:UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
+ 
         // Before download function returns city count is nil so set to 16 rows
-        if let cityCount = self.cityController.cities {
-            return cityCount.count
+        if self.cityController.cities.count > 0 {
+            return cityController.cities.count
         } else {
             return 16
         }
@@ -67,8 +67,11 @@ extension ViewController:UITableViewDataSource, UITableViewDelegate {
             )
         }
         
-        if let cityObject = self.cityController.cities?[indexPath.row] as? NSDictionary {
-            cell?.textLabel?.text = cityObject["city"] as? String
+        if self.cityController.cities.count > 0 {
+            let city = self.cityController.cities[indexPath.row]
+            if let cityName = city.city {
+                cell?.textLabel?.text = cityName
+            }
         } else {
             cell?.textLabel?.text = "city_text"
         }

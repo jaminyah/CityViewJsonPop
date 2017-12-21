@@ -8,6 +8,17 @@
 
 import Foundation
 
+struct City {
+    let flagUrl: String?
+    let slug:String?
+    let sports_team: String?
+    let city: String?
+    let state: String?
+    let region: String?
+    let latitude: Double?
+    let longitude: Double?
+}
+
 
 class CityController:NSObject, URLSessionDelegate {
     
@@ -16,7 +27,7 @@ class CityController:NSObject, URLSessionDelegate {
     private let JsonUrl = "http://cdn.jaminya.com/json/cities.json"
     
     // Public properties
-    var cities: NSArray?
+    var cities = [City]()
   
     func downloadJson(completion: @escaping ()->()) {
         // Debug
@@ -36,11 +47,12 @@ class CityController:NSObject, URLSessionDelegate {
                         let json = try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
                         
                         if let major_cities = json["major_cities"] as? NSArray {
-                              self.cities = major_cities
+                            
+                            self.buildCitiesFrom(jsonArray: major_cities)
                             
                             // debug
                             print("Debugging self.cities")
-                            print(self.cities![0])
+                            print(major_cities[0])
                         }
                     } catch let error as NSError {
                         print("Failed to parse: \(error.localizedDescription)")
@@ -51,6 +63,27 @@ class CityController:NSObject, URLSessionDelegate {
             completion()
         }
         task.resume()
+    }
+    
+    private func buildCitiesFrom(jsonArray:NSArray?) {
+        self.cities.removeAll()
+        var index = 0
+        if let cityArray = jsonArray {
+            while (index < cityArray.count) {
+                let city = cityArray[index] as? NSDictionary
+                let flagLink = city?["flagUrl"] as? String
+                let slugName = city?["slug"] as? String
+                let team = city?["sports_team"] as? String
+                let cityName = city?["city"] as? String
+                let stateName = city?["state"] as? String
+                let regionName = city?["region"] as? String
+                let lat = city?["latitude"] as? Double
+                let long = city?["longitude"] as? Double
+                self.cities.append(City(flagUrl:flagLink, slug:slugName, sports_team:team,
+                                        city:cityName, state:stateName, region:regionName, latitude:lat, longitude:long))
+                index = index + 1
+            }
+        }
     }
 
 } // class
